@@ -21,7 +21,8 @@ Applications can create multiple nbd devices by calling ```NbdLoopbackStart(...)
 ## Data structures and callbacks
 *NbdParams* struct contains blocksize which the LBA size for the device. It also contains *num_blocks* which is self explainatory. In addition to those it contains std:function (c++ way of function pointers) for all the callbacks. Note that Memory allocation callbacks are sync. and rest of the callbacks, except *disconnect()* are async.
 
-The primary per command data struct is ```NbdCmd``` defined in *nbd_server.h*. This struct is passed in most of the callbacks and contains all the context needed by the application to fulfill the specific command. Unfortunetly This data struct also contains a number of fields which are used by internal implementation of nbd_server. In a future version we might consider breaking this into two structs, one for internal implementation and one for backend implementation. But for now the header file *nbd_server.h* documents the fields which can be used by the backend. These are:
+The primary per command data struct is ```NbdCmd``` defined in *nbd_server.h*. This struct is passed in most of the callbacks and contains all the context needed by the application to fulfill the specific command. Unfortunetly This data struct also contains a number of fields which are used by internal implementation of nbd_server. In a future version we might consider breaking this into two structs, one for internal implementation and one for backend implementation. But for now the header file *nbd_server.h* documents the fields which can be used by the backend. These are given below.
+
  Field | Details
 ---|---
 data_buf | Pointer to the data buffer allocated via ```alloc_data_mem()``` callback.
