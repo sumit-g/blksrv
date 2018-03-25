@@ -17,4 +17,18 @@ Applications can create multiple nbd devices by calling ```NbdLoopbackStart(...)
 - Implement the callbacks (see below for details on callbacks).
 - When you need an nbd block device in your project, instantiate an ```NbdParams``` struct, initialize it and call ```NbdLoopbackStart(...)```. See ramdisk example for details.
 - When a specific nbd block device is no longer needed, application calls ```NbdLoopbackStop(...)``` and passes the given nbd device string to it to remove that device from the system. Application can (optionally) also specify a disconnect() callback which will be called before the nbd device is taken away.
-- 
+
+## Data structures and callbacks
+*NbdParams* struct contains blocksize which the LBA size for the device. It also contains *num_blocks* which is self explainatory. In addition to those it contains std:function (c++ way of function pointers) for all the callbacks. Note that Memory allocation callbacks are sync. and rest of the callbacks, except *disconnect()* are async.
+
+The primary per command data struct is ```NbdCmd``` defined in *nbd_server.h*. This struct is passed in most of the callbacks and contains all the context needed by the application to fulfill the specific command. Unfortunetly This data struct also contains a number of fields which are used by internal implementation of nbd_server. In a future version we might consider breaking this into two structs, one for internal implementation and one for backend implementation. But for now the header file *nbd_server.h* documents the fields which can be used by the backend. These are:
+ Field | Details
+---|---
+data_buf | Pointer to the data buffer allocated via ```alloc_data_mem()``` callback.
+io_offset | Byte offset into the device (LBA * lbasize)
+ret_error | Set before calling *completion_cb*, 0 means no error, otherwise set to errno
+completion_cb | Completion callback, takes pointer to NbdCmd
+fua | set to 1 if FUA (forced unit access) bit was set in the request
+io_size | requested IO size in bytes
+arg | Argument (a void \*), from *NbdParams* originally passed to *NbdLoopbackStart()*
+client_private | A void \*, provided for client to set on a per command basis

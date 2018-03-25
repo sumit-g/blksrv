@@ -62,7 +62,7 @@ class NbdCmd {
 
   // I/O context.
   void *data_buf;
-  uint64_t io_offset;
+  uint64_t io_offset;  // byte offset into the device.
   void *cur_io_ptr;
   unsigned io_size_remaining;
   // Set by implementation to indicate error. 0=no error
